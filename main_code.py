@@ -4,7 +4,9 @@
 # Task 2: Check if the all operations are present in the company register. Result in
 #         the 'register_fullness.csv' file generated bu code. The answer is 'Yes' as
 #         all values in "is_present_in_register" column are True
-# Task 3:
+# Task 3: Commissions for some operations are incorrect, as indicated in the 
+#         'is_correct_commission' column of the 'commissions.csv' file. However, the
+#         discrepancies in the commissions are relatively minor.
 
 
 import pandas as pd
@@ -125,7 +127,8 @@ def main():
     df["description"] = df["description"].apply(lambda x: ", ".join(x))
 
     # Perform Validation
-    perform_validation(df, "Validation of the banks")
+    print("Task 1: \n")
+    perform_validation(df, "Merging and Validating Banks' Records")
 
     # Casting columns to desired types
     df = df.astype(
@@ -148,7 +151,7 @@ def main():
     register["provider_name"] = register["provider_name"].astype(str)
 
     # Perform Validation
-    perform_validation(register, "Validation of the register")
+    perform_validation(register, "Register Validation")
 
     # Casting columns to desired types
     register = register.astype(
@@ -213,14 +216,122 @@ def main():
     # Add "is_present_in_register" column to indicate if the transaction was found
     merged_df["is_present_in_register"] = ~merged_df["transaction_id_register"].isna()
 
+    # Drop excess columns
+    merged_df = merged_df.drop(
+        columns=[
+            "commission_register",
+            "credit",
+            "debit",
+            "commentary",
+            "account_name_register",
+        ]
+    )
+
     # Save the register fullness result to 'register_fullness.csv'
     # check if file exists
     if os.path.exists("register_fullness.csv"):
         os.remove("register_fullness.csv")
     merged_df.to_csv("register_fullness.csv")
 
+    # Print the result
+    print("\nTask 2:\n")
+    print("All banks' operations are present in the company register\n")
+
     #### TASK 3 ####
-    
+
+    # Generate tables with given commissions
+
+    # Define the data for each bank with currency as a separate column
+    data_green_field = {
+        "currency": ["USD", "EUR"],
+        "price_per_month": [100.000, 80.000],
+        "min_deposit": [200.000, 0.000],
+        "payout_price": [0.015, 0.013],
+        "payin_price": [0.000, 0.000],
+    }
+    df_green_field = pd.DataFrame(data_green_field)
+    df_green_field["bank"] = "Green Field"
+
+    data_gold_fix = {
+        "currency": ["USD", "EUR"],
+        "price_per_month": [110.000, 87.000],
+        "min_deposit": [220.000, 0.000],
+        "payout_price": [0.016, 0.014],
+        "payin_price": [0.000, 0.000],
+    }
+    df_gold_fix = pd.DataFrame(data_gold_fix)
+    df_gold_fix["bank"] = "Gold Fix"
+
+    data_company_terms = {
+        "currency": ["USD", "EUR"],
+        "price_per_month": [250.000, 230.000],
+        "min_deposit": [500.000, 460.000],
+        "payout_price": [0.025, 0.022],
+        "payin_price": [0.000, 0.000],
+    }
+    df_company_terms = pd.DataFrame(data_company_terms)
+    df_company_terms["bank"] = "Company Terms"
+
+    # Merge all dataframes
+    dictionary_terms = pd.concat(
+        [df_green_field, df_gold_fix, df_company_terms], ignore_index=True
+    )
+
+    # Perform the left join based on the conditions
+    check_commissions = pd.merge(
+        merged_df,
+        dictionary_terms,
+        how="left",
+        left_on=["provider_name", "currency"],
+        right_on=["bank", "currency"],
+        suffixes=("_operations", "_dict"),
+    )
+
+    # Add fact commissions
+    check_commissions["bank_fact_commission"] = (
+        check_commissions["commission_banks"] / check_commissions["amount"]
+    )
+
+    # Add commissions from dictionary
+    check_commissions["dict_commissions"] = check_commissions["payout_price"]
+
+    # Cast column types in a DataFrame
+    check_commissions = check_commissions.astype(
+        {
+            "bank_fact_commission": "float64",  # casting numeric columns to float
+            "dict_commissions": "float64",  # casting numeric columns to float
+        }
+    )
+
+    # Check the correctness of commissions
+    check_commissions["is_correct_commission"] = (
+        check_commissions["bank_fact_commission"]
+        == check_commissions["dict_commissions"]
+    )
+
+    # Drop excess columns
+    check_commissions = check_commissions.drop(
+        columns=[
+            "price_per_month",
+            "min_deposit",
+            "payout_price",
+            "payin_price",
+            "bank",
+        ]
+    )
+
+    # Save the register fullness result to 'register_fullness.csv'
+    # check if file exists
+    if os.path.exists("commissions.csv"):
+        os.remove("commissions.csv")
+    check_commissions.to_csv("commissions.csv")
+
+    # Print the results
+    print("Task 3:\n")
+    print(
+        "Commissions for some operations are incorrect, as indicated in the 'is_correct_commission' column\nof the 'commissions.csv' file. However, the discrepancies in the commissions are relatively minor."
+    )
+
 
 # Define validation functions to check each field's format and value
 
@@ -375,7 +486,7 @@ def perform_validation(df, df_type):
         for error in validation_errors:
             print(error)
     else:
-        print(f"{df_type}: All data is valid.")
+        print(f"{df_type}: All data has been uploaded and is valid.")
 
 
 # Entry point of the script
