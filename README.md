@@ -36,7 +36,8 @@ pip install forex-python
 ```
 
 ## Outputs
-### Banks Statements: `banks_statements.csv`
-### Register Fullness Check: `register_fullness.csv`
-### Commissions Validation: `commissions.csv`
-### Financial Reports: `financial_report.xlsx` with "Report 1" and "Report 2" sheets
+
+Banks Statements: `banks_statements.csv`\
+Register Fullness Check: `register_fullness.csv`\
+Commissions Validation: `commissions.csv`\
+Financial Reports: `financial_report.xlsx` with "Report 1" and "Report 2" sheets
