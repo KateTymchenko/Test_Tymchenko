@@ -1,5 +1,9 @@
 ## Project Structure
 
+### Tableau Visualization
+
+https://prod-uk-a.online.tableau.com/#/site/katerynavtymchenkob39da58d44/views/Financialreports/FinancialReport?:iid=10
+
 ### Folders
 
 - **Power Query**
