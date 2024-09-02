@@ -25,7 +25,7 @@ the `is_present_in_register` column are 'True'.
 ### Task 3:
 Commissions for some operations are incorrect, as indicated in the `is_correct_commission`
 column of the `commissions.csv` file. However, the discrepancies in the commissions are 
-relatively minor.
+relatively minor. It is noteworthy that there are absent customer payments for using the company account in February.
 
 ### Task 4:
 The financial report data is generated in the financial_report.xlsx file and divided into 
